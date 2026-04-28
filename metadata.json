@@ -1,0 +1,6 @@
+{
+  "name": "CZ-PatchGen",
+  "description": "Gerador de Patches (Configurações de Som) para o sintetizador Casio CZ-101 usando IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

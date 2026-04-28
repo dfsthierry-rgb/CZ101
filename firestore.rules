@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidPatch(data) {
+      return data.keys().hasAll(['userId', 'toneName', 'comment', 'patchData', 'createdAt']) && 
+             data.keys().size() == 5 &&
+             data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
+             data.toneName is string && data.toneName.size() <= 128 &&
+             data.comment is string && data.comment.size() <= 512 &&
+             data.patchData is map &&
+             data.createdAt is number;
+    }
+
+    match /patches/{patchId} {
+      // Create: User can create a patch if they are signed in and it belongs to them
+      allow create: if isSignedIn() && isValidId(patchId) && isValidPatch(incoming());
+      
+      // Update is not needed as they don't seem to edit, but let's say they can't.
+      allow update: if false;
+
+      // Delete: Owner can delete their patch
+      allow delete: if isSignedIn() && isValidId(patchId) && existing().userId == request.auth.uid;
+      
+      // Read: Owner can read their patches
+      allow get: if isSignedIn() && isValidId(patchId) && existing().userId == request.auth.uid;
+      
+      // List: Owner can list their patches
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

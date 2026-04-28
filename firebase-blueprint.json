@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "Patch": {
+      "title": "Patch",
+      "description": "A saved CZ-101 patch configuration",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner of the patch"
+        },
+        "toneName": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "patchData": {
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "number"
+        }
+      },
+      "required": ["userId", "toneName", "comment", "patchData", "createdAt"]
+    }
+  },
+  "firestore": {
+    "patches/{patchId}": {
+      "schema": {
+        "$ref": "#/entities/Patch"
+      },
+      "description": "Saved patches belonging to a user"
+    }
+  }
+}
